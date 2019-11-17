@@ -7,6 +7,7 @@ import android.graphics.Point;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Toast;
@@ -145,40 +146,28 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
 
     @Override
     public void onCallReady(String callId) {
-        if (callerId != null) {
-            try {
-                answer(callerId);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        } else {
             call(callId);
-        }
     }
 
     public void answer(String callerId) throws JSONException {
+        Log.v("xhw","answer "+callerId);
         client.sendMessage(callerId, "init", null);
         startCam();
     }
 
     public void call(String callId) {
-        Intent msg = new Intent(Intent.ACTION_SEND);
-        msg.putExtra(Intent.EXTRA_TEXT, mSocketAddress + callId);
-        msg.setType("text/plain");
-        startActivityForResult(Intent.createChooser(msg, "Call someone :"), VIDEO_CALL_SENT);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == VIDEO_CALL_SENT) {
-            startCam();
-        }
+        Log.v("xhw","call "+callId);
+        startCam();
+//        Intent msg = new Intent(Intent.ACTION_SEND);
+//        msg.putExtra(Intent.EXTRA_TEXT, mSocketAddress + callId);
+//        msg.setType("text/plain");
+//        startActivityForResult(Intent.createChooser(msg, "Call someone :"), VIDEO_CALL_SENT);
     }
 
     public void startCam() {
         // Camera settings
         if (PermissionChecker.hasPermissions(this, RequiredPermissions)) {
-            client.start("android_test");
+            client.start("android_test111");
         }
     }
 

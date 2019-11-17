@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 public class WebRtcClient {
-    private final static String TAG = WebRtcClient.class.getCanonicalName();
+    private final static String TAG = "xhw";
     private final static int MAX_PEER = 2;
     private boolean[] endPoints = new boolean[MAX_PEER];
     private PeerConnectionFactory factory;
@@ -61,7 +61,7 @@ public class WebRtcClient {
 
     private class CreateOfferCommand implements Command {
         public void execute(String peerId, JSONObject payload) throws JSONException {
-            Log.d(TAG, "CreateOfferCommand");
+            Log.d(TAG, "CreateOfferCommand peerId="+peerId+" payload="+payload);
             Peer peer = peers.get(peerId);
             peer.pc.createOffer(peer, pcConstraints);
         }
@@ -69,7 +69,7 @@ public class WebRtcClient {
 
     private class CreateAnswerCommand implements Command {
         public void execute(String peerId, JSONObject payload) throws JSONException {
-            Log.d(TAG, "CreateAnswerCommand");
+            Log.d(TAG, "CreateAnswerCommand peerId="+peerId+" payload="+payload);
             Peer peer = peers.get(peerId);
             SessionDescription sdp = new SessionDescription(
                     SessionDescription.Type.fromCanonicalForm(payload.getString("type")),
@@ -82,7 +82,7 @@ public class WebRtcClient {
 
     private class SetRemoteSDPCommand implements Command {
         public void execute(String peerId, JSONObject payload) throws JSONException {
-            Log.d(TAG, "SetRemoteSDPCommand");
+            Log.d(TAG, "SetRemoteSDPCommand peerId="+peerId+" payload="+payload);
             Peer peer = peers.get(peerId);
             SessionDescription sdp = new SessionDescription(
                     SessionDescription.Type.fromCanonicalForm(payload.getString("type")),
@@ -94,7 +94,7 @@ public class WebRtcClient {
 
     private class AddIceCandidateCommand implements Command {
         public void execute(String peerId, JSONObject payload) throws JSONException {
-            Log.d(TAG, "AddIceCandidateCommand");
+            Log.d(TAG, "AddIceCandidateCommand peerId="+peerId+" payload="+payload);
             PeerConnection pc = peers.get(peerId).pc;
             if (pc.getRemoteDescription() != null) {
                 IceCandidate candidate = new IceCandidate(
@@ -120,6 +120,9 @@ public class WebRtcClient {
         message.put("to", to);
         message.put("type", type);
         message.put("payload", payload);
+
+        Log.v(TAG,"sendMessage="+message.toString());
+
         client.emit("message", message);
     }
 
@@ -138,6 +141,9 @@ public class WebRtcClient {
             @Override
             public void call(Object... args) {
                 JSONObject data = (JSONObject) args[0];
+
+                Log.v(TAG,"onMessage "+data.toString());
+
                 try {
                     String from = data.getString("from");
                     String type = data.getString("type");
@@ -180,6 +186,9 @@ public class WebRtcClient {
         @Override
         public void onCreateSuccess(final SessionDescription sdp) {
             // TODO: modify sdp to use pcParams prefered codecs
+
+            Log.v(TAG,"onCreateSuccess "+sdp.toString());
+
             try {
                 JSONObject payload = new JSONObject();
                 payload.put("type", sdp.type.canonicalForm());
@@ -221,6 +230,7 @@ public class WebRtcClient {
 
         @Override
         public void onIceCandidate(final IceCandidate candidate) {
+            Log.v("xhw","onIceCandidate "+candidate.toString());
             try {
                 JSONObject payload = new JSONObject();
                 payload.put("label", candidate.sdpMLineIndex);
@@ -255,7 +265,7 @@ public class WebRtcClient {
         }
 
         public Peer(String id, int endPoint) {
-            Log.d(TAG, "new Peer: " + id + " " + endPoint);
+            Log.d(TAG, "new Peer: id=" + id + " endPoint=" + endPoint);
             this.pc = factory.createPeerConnection(iceServers, pcConstraints, this);
             this.id = id;
             this.endPoint = endPoint;
@@ -361,6 +371,7 @@ public class WebRtcClient {
     }
 
     private void setCamera() {
+        Log.v("xhw","");
         localMS = factory.createLocalMediaStream("ARDAMS");
         if (pcParams.videoCallEnabled) {
             MediaConstraints videoConstraints = new MediaConstraints();
