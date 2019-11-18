@@ -179,7 +179,22 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
 
     @Override
     public void onLocalStream(MediaStream localStream) {
-        localStream.videoTracks.get(0).addRenderer(new VideoRenderer(localRender));
+
+        VideoRenderer.Callbacks callbacks=new VideoRenderer.Callbacks() {
+            @Override
+            public void renderFrame(VideoRenderer.I420Frame i420Frame) {
+                    Log.v("xhw","renderFrame width="+i420Frame.width+" height="+i420Frame.width+" array="+i420Frame.yuvPlanes.toString());
+            }
+
+            @Override
+            public boolean canApplyRotation() {
+                return false;
+            }
+        };
+
+
+        localStream.videoTracks.get(0).addRenderer(new VideoRenderer(callbacks));
+//        localStream.videoTracks.get(0).addRenderer(new VideoRenderer(localRender));
         VideoRendererGui.update(localRender,
                 LOCAL_X_CONNECTING, LOCAL_Y_CONNECTING,
                 LOCAL_WIDTH_CONNECTING, LOCAL_HEIGHT_CONNECTING,
