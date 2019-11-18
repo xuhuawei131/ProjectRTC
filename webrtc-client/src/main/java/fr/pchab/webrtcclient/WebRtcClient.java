@@ -187,12 +187,15 @@ public class WebRtcClient {
         public void onCreateSuccess(final SessionDescription sdp) {
             // TODO: modify sdp to use pcParams prefered codecs
 
-            Log.v(TAG,"onCreateSuccess "+sdp.toString());
+
 
             try {
                 JSONObject payload = new JSONObject();
                 payload.put("type", sdp.type.canonicalForm());
                 payload.put("sdp", sdp.description);
+
+                Log.v(TAG,"onCreateSuccess "+payload.toString());
+
                 sendMessage(id, sdp.type.canonicalForm(), payload);
                 pc.setLocalDescription(Peer.this, sdp);
             } catch (JSONException e) {
@@ -295,11 +298,14 @@ public class WebRtcClient {
     public WebRtcClient(RtcListener listener, String host, PeerConnectionParameters params, EGLContext mEGLcontext) {
         mListener = listener;
         pcParams = params;
+        //
         PeerConnectionFactory.initializeAndroidGlobals(listener, true, true,
                 params.videoCodecHwAcceleration, mEGLcontext);
         factory = new PeerConnectionFactory();
+
         MessageHandler messageHandler = new MessageHandler();
 
+        //与信令服务器沟通
         try {
             client = IO.socket(host);
         } catch (URISyntaxException e) {
@@ -309,9 +315,11 @@ public class WebRtcClient {
         client.on("message", messageHandler.onMessage);
         client.connect();
 
+        //穿墙服务器
         iceServers.add(new PeerConnection.IceServer("stun:23.21.150.121"));
         iceServers.add(new PeerConnection.IceServer("stun:stun.l.google.com:19302"));
 
+        //是否支持 音频 视频 、是否支持Dtls协议的strp加密
         pcConstraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveAudio", "true"));
         pcConstraints.mandatory.add(new MediaConstraints.KeyValuePair("OfferToReceiveVideo", "true"));
         pcConstraints.optional.add(new MediaConstraints.KeyValuePair("DtlsSrtpKeyAgreement", "true"));
@@ -347,7 +355,8 @@ public class WebRtcClient {
     }
 
     private int findEndPoint() {
-        for (int i = 0; i < MAX_PEER; i++) if (!endPoints[i]) return i;
+        for (int i = 0; i < MAX_PEER; i++)
+            if (!endPoints[i]) return i;
         return MAX_PEER;
     }
 

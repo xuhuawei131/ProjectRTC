@@ -158,10 +158,6 @@ public class RtcActivity extends Activity implements WebRtcClient.RtcListener {
     public void call(String callId) {
         Log.v("xhw","call "+callId);
         startCam();
-//        Intent msg = new Intent(Intent.ACTION_SEND);
-//        msg.putExtra(Intent.EXTRA_TEXT, mSocketAddress + callId);
-//        msg.setType("text/plain");
-//        startActivityForResult(Intent.createChooser(msg, "Call someone :"), VIDEO_CALL_SENT);
     }
 
     public void startCam() {
